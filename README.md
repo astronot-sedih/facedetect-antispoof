@@ -78,6 +78,54 @@ AntiSpoofing-FaceDetection/
 └── 📄 requirements.txt              # Python dependencies
 ```
 
+## 🔧 Model Training & Preparation
+
+### Step 1. Dataset Preparation
+- Download [CelebA Spoof dataset](https://www.kaggle.com/datasets/attentionlayer241/celeba-spoof-for-face-antispoofing) to `./CelebA_Spoof` directory.
+- Generate cropped dataset of faces.  Example:
+```sh
+python data_preparation.py --spoof_types 0 1 2 3 7 8 9 --bbox_inc 1.5 --size 128
+```
+Generates dataset of squared crops of faces with live, print and replay images of shape 3x128x128 in subdir `/data_1.5_128` of `./CelebA_Spoof_crop` directory.
+<details><summary> data_preparation.py arguments details</summary>
+<p>
+
+`--spoof_types` - list of spoof types to keep, according to original labels:
+   - `0`     - Live
+   - `1`,`2`,`3` - Print
+   - `4`,`5`,`6` - Paper Cut
+   - `7`,`8`,`9` - Replay  
+
+`--bbox_inc` - Image bbox increasing, value 1 makes no effect. Crops were made according to bbox markup, which is recorded in the files '\*_BB.txt' for each photo.     
+`--size` - the size of the cropped image (height = width = `size`)   
+`--orig_dir` - Directory with original Celeba_Spoof dataset (*'./CelebA_Spoof'* by default)    
+`--crop_dir` - Directory to save cropped dataset (*'./CelebA_Spoof_crop'* by default)    
+</p>
+</details>
+
+### Step 2. Train Model
+An example of a training script call
+```sh
+python train.py --crop_dir data_1.5_128 --input_size 128 --batch_size 256 --num_classes 2
+```
+Trains the model with PyTorch, records metrics in *./logs/jobs/* with tensorboard, and stores the weights of the trained models in *./logs/snapshot/*
+<details><summary> train.py arguments details</summary>
+<p>
+
+`--crop_dir` - Name of subdir with cropped images in *./CelebA_Spoof_crop* directory     
+`--input_size` - Input size of images passed to model (height = width = `input_size`)   
+`--batch_size` - Count of images in the batch    
+`--num_classes` - **2** for binary or **3** for live-print-replay classification    
+`--job_name` - Suffix for model name saved in snapshots dir    
+</p>
+</details>
+
+### Step 3. Convert Model to ONNX format
+```sh
+python model_to_onnx.py path/to/model.pth num_classes
+```
+
+
 ## 🎯 Usage Guide
 
 ### 1. 🌐 Web Interface (Streamlit) - **Recommended for Beginners**
