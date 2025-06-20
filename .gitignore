@@ -180,10 +180,8 @@ Thumbs.db
 *.wmv
 
 # Large model files - consider using Git LFS
-*.pth
 *.h5
 *.pb
-*.onnx
 
 # Temporary output files
 capture_*.jpg
